@@ -10,12 +10,16 @@ import javax.xml.bind.Marshaller;
 
 import org.springframework.stereotype.Service;
 
+import lombok.extern.slf4j.Slf4j;
 import pt.baie.vatreqservice.model.ContribuinteEspecial;
 
+@Slf4j
 @Service
 public class PedidoService {
 
 	public String contribuinteEspecialString(ContribuinteEspecial contribuinte) {
+		
+		log.info("[VATREQSERVICE] PedidoService ====== Getting String xml for "+contribuinte.getSingular().getNome());
 
 		try {
 			// Create JAXB Context
@@ -36,17 +40,19 @@ public class PedidoService {
 
 			// Verify XML Content
 			String xmlContent = sw.toString();
-			System.out.println(xmlContent);
 
 			return xmlContent;
 
 		} catch (JAXBException e) {
 			e.printStackTrace();
+			log.error("[ERROR][VATREQSERVICE] PedidoService ====== Getting String xml for "+contribuinte.getSingular().getNome());
 			return e.getMessage();
 		}
 	}
 
 	public String contribuinteEspecialXmlFIle(ContribuinteEspecial contribuinte) {
+		
+		log.info("[VATREQSERVICE] PedidoService ====== Getting xml File for "+contribuinte.getSingular().getNome());
 
 		try {
 
@@ -61,7 +67,7 @@ public class PedidoService {
 			jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "ISO-8859-1");
 
 			// Store XML to File
-			String filePath = "/opt/vatreqservice/xmlfiles/";
+			String filePath = "/opt/services/vatreqservice/xmlfile/";
 			String fileName = contribuinte.getSingular().getNome().replace(" ", "");
 			String reqDay = LocalDate.now().toString().trim().replace("-", "");
 
@@ -80,6 +86,7 @@ public class PedidoService {
 
 		} catch (JAXBException e) {
 			e.printStackTrace();
+			log.error("[ERROR][VATREQSERVICE] PedidoService ====== Getting xml File for "+contribuinte.getSingular().getNome());
 			return "Error savind file: "+e.getCause();
 		}
 	}
