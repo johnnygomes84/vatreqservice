@@ -19,7 +19,7 @@ public class PedidoService {
 
 	public String contribuinteEspecialString(ContribuinteEspecial contribuinte) {
 		
-		log.info("[VATREQSERVICE] PedidoService ====== Getting String xml for "+contribuinte.getSingular().getNome());
+		log.info("[VATREQSERVICE] PedidoService ====== Getting String xml for ".concat(contribuinte.getSingular().getNome()));
 
 		try {
 			// Create JAXB Context
@@ -50,9 +50,9 @@ public class PedidoService {
 		}
 	}
 
-	public String contribuinteEspecialXmlFIle(ContribuinteEspecial contribuinte) {
+	public String contribuinteEspecialXmlFIle(ContribuinteEspecial contribuinte, String filePath) {
 		
-		log.info("[VATREQSERVICE] PedidoService ====== Getting xml File for "+contribuinte.getSingular().getNome());
+		log.info("[VATREQSERVICE] PedidoService ====== Getting xml File for ".concat(contribuinte.getSingular().getNome()));
 
 		try {
 
@@ -67,20 +67,21 @@ public class PedidoService {
 			jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "ISO-8859-1");
 
 			// Store XML to File
-			String filePath = "/opt/services/vatreqservice/xmlfile/";
-			String fileName = contribuinte.getSingular().getNome().replace(" ", "");
+			String fileName = contribuinte.getSingular().getNome().replace(" ", "").toLowerCase();
 			String reqDay = LocalDate.now().toString().trim().replace("-", "");
+			
+			String subFolder = File.separator+"4. Outros documentos"+File.separator;
 
 			StringBuilder fullFileName = new StringBuilder();
 
-			fullFileName.append(filePath).append(fileName).append(reqDay).append(".xml");
+			fullFileName.append(filePath).append(subFolder).append(fileName).append(reqDay).append(".xml");
 
 			File file = new File(fullFileName.toString());
 
 			// Writes XML file to file-system
 			jaxbMarshaller.marshal(contribuinte, file);
 
-			String response = fileName.concat(reqDay).concat(".xml") + " saved in: " + filePath;
+			String response = fileName.concat(reqDay).concat(".xml") + " saved in: " + filePath.concat(subFolder);
 
 			return response;
 
