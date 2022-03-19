@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import pt.baie.vatreqservice.model.ContribuinteEspecial;
+import pt.baie.vatreqservice.model.RequestDTO;
 import pt.baie.vatreqservice.service.PedidoService;
 
 @RestController
 @RequestMapping("/vatrequestservice")
-@CrossOrigin(origins = "*")
 public class PedidoController {
 
 	@Autowired
@@ -33,12 +33,12 @@ public class PedidoController {
 
 	}
 
-	@PostMapping("/savexmlfile/{filepath}")
-	public ResponseEntity<String> saveXmlFile(@RequestBody ContribuinteEspecial contribuinte,
-			@PathVariable String filepath) {
+	@PostMapping("/savexmlfile")
+	public ResponseEntity<String> saveXmlFile(@RequestBody RequestDTO requestDto) {
 
 		try {
-			String response = service.contribuinteEspecialXmlFIle(contribuinte, filepath);
+			String response = service.contribuinteEspecialXmlFIle(requestDto.getContribuinte(),
+					requestDto.getFilePath());
 			return ResponseEntity.ok(response);
 		} catch (Exception e) {
 			// TODO: handle exception
