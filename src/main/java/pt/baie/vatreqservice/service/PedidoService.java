@@ -19,8 +19,9 @@ import pt.baie.vatreqservice.model.ContribuinteEspecial;
 public class PedidoService {
 
 	public String contribuinteEspecialString(ContribuinteEspecial contribuinte) {
-		
-		log.info("[VATREQSERVICE] PedidoService ====== Getting String xml for ".concat(contribuinte.getSingular().getNome()));
+
+		log.info("[VATREQSERVICE] PedidoService ====== Getting String xml for "
+				.concat(contribuinte.getSingular().getNome()));
 
 		try {
 			// Create JAXB Context
@@ -46,14 +47,16 @@ public class PedidoService {
 
 		} catch (JAXBException e) {
 			e.printStackTrace();
-			log.error("[ERROR][VATREQSERVICE] PedidoService ====== Getting String xml for "+contribuinte.getSingular().getNome());
+			log.error("[ERROR][VATREQSERVICE] PedidoService ====== Getting String xml for "
+					+ contribuinte.getSingular().getNome());
 			return e.getMessage();
 		}
 	}
 
 	public String contribuinteEspecialXmlFIle(ContribuinteEspecial contribuinte, String filePath) {
-		
-		log.info("[VATREQSERVICE] PedidoService ====== Getting xml File for ".concat(contribuinte.getSingular().getNome()));
+
+		log.info("[VATREQSERVICE] PedidoService ====== Getting xml File for "
+				.concat(contribuinte.getSingular().getNome()));
 
 		try {
 
@@ -70,27 +73,40 @@ public class PedidoService {
 			// Store XML to File
 			String fileName = contribuinte.getSingular().getNome().replace(" ", "").toLowerCase();
 			String reqDay = LocalDate.now().toString().trim().replace("-", "");
-			
-			
+
 			StringBuilder fullFileName = new StringBuilder();
 			fullFileName.append(fileName).append(reqDay).append(".xml");
-			
-			Path fullPath = Path.of(filePath).resolve("4. Outros documentos").resolve(fullFileName.toString());
 
+			String fullPath;
+
+			if (System.getProperty("os.name").toLowerCase().contains("linux")) {
+				fullPath = filePath.concat("\\").concat("4. Outros documentos").concat("\\")
+						.concat(fullFileName.toString());
+			} else {
+
+				fullPath = Path.of(filePath).resolve("4. Outros documentos").resolve(fullFileName.toString())
+						.toString();
+			}
 
 			File file = new File(fullPath.toString());
 
 			// Writes XML file to file-system
 			jaxbMarshaller.marshal(contribuinte, file);
 
-			String response = fileName.concat(reqDay).concat(".xml") + " saved in: " +fullPath.toString();
+			String response = fileName.concat(reqDay).concat(".xml") + " saved in: " + fullPath.toString();
+
+			log.info(System.getProperty("os.name"));
+			log.info(File.separator);
 
 			return response;
 
 		} catch (JAXBException e) {
 			e.printStackTrace();
-			log.error("[ERROR][VATREQSERVICE] PedidoService ====== Getting xml File for "+contribuinte.getSingular().getNome());
-			return "Error savind file: "+e.getCause();
+			log.error("[ERROR][VATREQSERVICE] PedidoService ====== Getting xml File for "
+					+ contribuinte.getSingular().getNome());
+			log.error(System.getProperty("os.name"));
+			log.error(File.separator);
+			return "Error savind file: " + e.getCause();
 		}
 	}
 
