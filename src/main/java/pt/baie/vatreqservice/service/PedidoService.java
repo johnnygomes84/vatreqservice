@@ -2,6 +2,7 @@ package pt.baie.vatreqservice.service;
 
 import java.io.File;
 import java.io.StringWriter;
+import java.nio.file.Path;
 import java.time.LocalDate;
 
 import javax.xml.bind.JAXBContext;
@@ -70,18 +71,19 @@ public class PedidoService {
 			String fileName = contribuinte.getSingular().getNome().replace(" ", "").toLowerCase();
 			String reqDay = LocalDate.now().toString().trim().replace("-", "");
 			
-			String subFolder = File.separator+"4. Outros documentos"+File.separator;
-
+			
 			StringBuilder fullFileName = new StringBuilder();
+			fullFileName.append(fileName).append(reqDay).append(".xml");
+			
+			Path fullPath = Path.of(filePath).resolve("4. Outros documentos").resolve(fullFileName.toString());
 
-			fullFileName.append(filePath).append(subFolder).append(fileName).append(reqDay).append(".xml");
 
-			File file = new File(fullFileName.toString());
+			File file = new File(fullPath.toString());
 
 			// Writes XML file to file-system
 			jaxbMarshaller.marshal(contribuinte, file);
 
-			String response = fileName.concat(reqDay).concat(".xml") + " saved in: " + filePath.concat(subFolder);
+			String response = fileName.concat(reqDay).concat(".xml") + " saved in: " +fullPath.toString();
 
 			return response;
 
