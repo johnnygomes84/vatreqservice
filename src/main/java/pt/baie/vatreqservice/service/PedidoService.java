@@ -79,7 +79,7 @@ public class PedidoService {
 
 			String fullPath;
 
-			if (System.getProperty("os.name").toLowerCase().contains("linux")) {
+			if (System.getProperty("os.name").toLowerCase().contains("windows")) {
 				fullPath = filePath.concat("\\").concat("4. Outros documentos").concat("\\")
 						.concat(fullFileName.toString());
 			} else {
@@ -95,17 +95,12 @@ public class PedidoService {
 
 			String response = fileName.concat(reqDay).concat(".xml") + " saved in: " + fullPath.toString();
 
-			log.info(System.getProperty("os.name"));
-			log.info(File.separator);
-
 			return response;
 
 		} catch (JAXBException e) {
 			e.printStackTrace();
 			log.error("[ERROR][VATREQSERVICE] PedidoService ====== Getting xml File for "
 					+ contribuinte.getSingular().getNome());
-			log.error(System.getProperty("os.name"));
-			log.error(File.separator);
 			return "Error savind file: " + e.getCause();
 		}
 	}
