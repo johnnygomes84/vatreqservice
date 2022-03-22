@@ -79,7 +79,7 @@ public class PedidoService {
 
 			String fullPath;
 
-			if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+			if (filePath.contains("\\")) {
 				fullPath = filePath.concat("\\").concat("4. Outros documentos").concat("\\")
 						.concat(fullFileName.toString());
 			} else {
