@@ -1,9 +1,9 @@
 package pt.baie.vatreqservice.service;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Path;
-import java.time.LocalDate;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 import pt.baie.vatreqservice.model.ContribuinteEspecial;
+import pt.baie.vatreqservice.utils.SFTPFileTrnasferUtils;
 
 @Slf4j
 @Service
@@ -55,7 +56,7 @@ public class PedidoService {
 
 	public String contribuinteEspecialXmlFIle(ContribuinteEspecial contribuinte, String filePath) {
 
-		log.info("[VATREQSERVICE] PedidoService ====== Getting xml File for "
+		log.info("[PedidoService][contribuinteEspecialXmlFIle] PedidoService ====== Getting xml File for "
 				.concat(contribuinte.getSingular().getNome()));
 
 		try {
@@ -70,36 +71,68 @@ public class PedidoService {
 			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "ISO-8859-1");
 
-			// Store XML to File
+			// Store XML to tmp File
 			String fileName = contribuinte.getSingular().getNome().replace(" ", "").toLowerCase();
-			String reqDay = LocalDate.now().toString().trim().replace("-", "");
 
 			StringBuilder fullFileName = new StringBuilder();
-			fullFileName.append(fileName).append(reqDay).append(".xml");
+			fullFileName.append(fileName).append(".xml");
 
-			String fullPath;
+			String destPath;
 
 			if (filePath.contains("\\")) {
-				fullPath = filePath.concat("\\").concat("4. Outros documentos").concat("\\")
+				destPath = filePath.concat("\\").concat("4. Outros documentos").concat("\\")
 						.concat(fullFileName.toString());
 			} else {
 
-				fullPath = Path.of(filePath).resolve("4. Outros documentos").resolve(fullFileName.toString())
+				destPath = Path.of(filePath).resolve("4. Outros documentos").resolve(fullFileName.toString())
 						.toString();
 			}
 
-			File file = new File(fullPath.toString());
+			// temp file
+			String tmpdir = System.getProperty("java.io.tmpdir");
+
+			File tempFilePath = new File(tmpdir);
+
+			File file = File.createTempFile(fileName, ".xml", tempFilePath);
 
 			// Writes XML file to file-system
 			jaxbMarshaller.marshal(contribuinte, file);
+			log.info("[PedidoService][contribuinteEspecialXmlFIle] ====== TEMP FILE CREATED in :"
+					.concat(file.getAbsolutePath()));
 
-			String response = fileName.concat(reqDay).concat(".xml") + " saved in: " + fullPath.toString();
+			// chamada utils sftp
+			Boolean result = SFTPFileTrnasferUtils.sendFileSftp(file.getAbsolutePath(), destPath);
+
+			String response;
+
+			if (result) {
+				response = fileName.concat(".xml") + " saved in: " + destPath.toString();
+				log.info("[PedidoService][contribuinteEspecialXmlFIle] ==== Remote file saved: "
+						.concat(file.getAbsolutePath()));
+
+			} else {
+
+				log.error("[PedidoService][contribuinteEspecialXmlFIle][ERROR] ===== ERROR saving Remote file: "
+						.concat(file.getAbsolutePath()));
+				response = "Some error saving remote file: "
+						.concat(fileName.concat(".xml") + " saved in: " + destPath.toString());
+			}
+			
+			file.delete();
+			log.info("[PedidoService][contribuinteEspecialXmlFIle] ====== TEMP FILE deleted from: "
+					.concat(file.getAbsolutePath()));
 
 			return response;
 
 		} catch (JAXBException e) {
 			e.printStackTrace();
-			log.error("[ERROR][VATREQSERVICE] PedidoService ====== Getting xml File for "
+			log.error("[PedidoService][contribuinteEspecialXmlFIle][ERROR]====== Error Getting xml File for "
+					+ contribuinte.getSingular().getNome());
+			return "Error savind file: " + e.getCause();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			log.error("[PedidoService][contribuinteEspecialXmlFIle][ERROR]====== ErrorGetting xml File for "
 					+ contribuinte.getSingular().getNome());
 			return "Error savind file: " + e.getCause();
 		}
