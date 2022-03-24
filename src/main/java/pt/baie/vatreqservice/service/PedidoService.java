@@ -77,16 +77,8 @@ public class PedidoService {
 			StringBuilder fullFileName = new StringBuilder();
 			fullFileName.append(fileName).append(".xml");
 
-			String destPath;
-
-			if (filePath.contains("\\")) {
-				destPath = filePath.concat("\\").concat("4. Outros documentos").concat("\\")
-						.concat(fullFileName.toString());
-			} else {
-
-				destPath = Path.of(filePath).resolve("4. Outros documentos").resolve(fullFileName.toString())
-						.toString();
-			}
+			String destPath = Path.of(filePath).resolve("4. Outros documentos").resolve(fullFileName.toString())
+					.toString();
 
 			// temp file
 			String tmpdir = System.getProperty("java.io.tmpdir");
@@ -101,23 +93,18 @@ public class PedidoService {
 					.concat(file.getAbsolutePath()));
 
 			// chamada utils sftp
-			Boolean result = SFTPFileTrnasferUtils.sendFileSftp(file.getAbsolutePath(), destPath);
+			Boolean resultSendFile = SFTPFileTrnasferUtils.sendFileSftp(file.getAbsolutePath(), destPath);
 
 			String response;
 
-			if (result) {
+			if (resultSendFile) {
 				response = fileName.concat(".xml") + " saved in: " + destPath.toString();
-				log.info("[PedidoService][contribuinteEspecialXmlFIle] ==== Remote file saved: "
-						.concat(file.getAbsolutePath()));
 
 			} else {
-
-				log.error("[PedidoService][contribuinteEspecialXmlFIle][ERROR] ===== ERROR saving Remote file: "
-						.concat(file.getAbsolutePath()));
 				response = "Some error saving remote file: "
 						.concat(fileName.concat(".xml") + " saved in: " + destPath.toString());
 			}
-			
+
 			file.delete();
 			log.info("[PedidoService][contribuinteEspecialXmlFIle] ====== TEMP FILE deleted from: "
 					.concat(file.getAbsolutePath()));
@@ -132,7 +119,7 @@ public class PedidoService {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			log.error("[PedidoService][contribuinteEspecialXmlFIle][ERROR]====== ErrorGetting xml File for "
+			log.error("[PedidoService][contribuinteEspecialXmlFIle][ERROR]====== Error Getting xml File for "
 					+ contribuinte.getSingular().getNome());
 			return "Error savind file: " + e.getCause();
 		}

@@ -92,7 +92,7 @@ public class SFTPFileTrnasferUtils {
 		} catch (Exception e) {
 			// TODO: handle exception
 
-			log.error("[SFTPFileTrnasferUtils][sendFileSftp][ERROR] ========= ERROR sendind file ->".concat(e.getMessage()));
+			log.error("[SFTPFileTrnasferUtils][sendFileSftp][ERROR] ========= ERROR sendind file ----> ".concat(e.getMessage()));
 			return false;
 		}
 
